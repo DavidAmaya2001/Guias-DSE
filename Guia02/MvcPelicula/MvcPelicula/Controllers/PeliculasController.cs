@@ -15,9 +15,29 @@ namespace MvcPelicula.Controllers
         private PeliculaDBContext db = new PeliculaDBContext();
 
         // GET: Peliculas
-        public ActionResult Index(string id)
+        public ActionResult Index(string buscarString, string generoPelicula)
         {
-            string buscarString = id;
+            var GeneroLst = new List<string>();
+            var GeneroQry = from d in db.Peliculas
+                            orderby d.Genero
+                            select d.Genero;
+
+            GeneroLst.AddRange(GeneroQry.Distinct());
+            ViewBag.generoPelicula = new SelectList(GeneroLst, "accion");
+
+            var peliculas = from p in db.Peliculas select p;
+
+            if (!String.IsNullOrEmpty(buscarString))
+            {
+                peliculas = peliculas.Where(s => s.Titulo.Contains(buscarString));
+            }
+            if (!string.IsNullOrEmpty(generoPelicula))
+            {
+                peliculas = peliculas.Where(x => x.Genero == generoPelicula);
+            }
+
+            return View(peliculas);
+            /*string buscarString = id;
             var peliculas = from p in db.Peliculas
                             select p;
 
@@ -25,7 +45,7 @@ namespace MvcPelicula.Controllers
             {
                 peliculas = peliculas.Where(s => s.Titulo.Contains(buscarString));
             }
-            return View(db.Peliculas.ToList());
+            return View(db.Peliculas.ToList());*/
         }
 
         [HttpPost]
